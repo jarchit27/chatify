@@ -1,3 +1,5 @@
+import { sendWelcomeEmail } from "../emails/emailHandlers.js";
+import { ENV } from "../lib/env.js";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
@@ -34,22 +36,26 @@ export const signup = async (req, res) => {
             password: hashedPassword,
         });
         if (newUser) {
-            // generateToken(newUser._id, res);
-            // await newUser.save();
-
-            // Save the user first, then generate the token
             const savedUser = await newUser.save();
             generateToken(savedUser._id, res);
 
-            return res.status(201).json({
-                _id: newUser._id,
-                fullName: newUser.fullName,
-                email: newUser.email,
-                profilePic: newUser.profilePic,
-            });
+            try {
+                await sendWelcomeEmail(
+                    savedUser.email,
+                    savedUser.fullName,
+                    ENV.CLIENT_URL
+                );
+            }
+            catch (error) {
+                console.error('Error sending welcome email:', error);
+            }
 
-            // generate token after saving user, otherwise if token is generated before saving, it will not have the user id and will cause issues when trying to authenticate the user later on
-            // Todo: Send welcom email to user after successful signup
+            return res.status(201).json({
+                _id: savedUser._id,
+                fullName: savedUser.fullName,
+                email: savedUser.email,
+                profilePic: savedUser.profilePic,
+            });
         }
         else {
             return res.status(500).json({message: 'Failed to create user.'});
