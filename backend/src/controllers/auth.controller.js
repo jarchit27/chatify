@@ -71,7 +71,12 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
     const {email, password} = req.body;
     try {
-        const user = await User.findOne({email: email});    
+        const user = await User.findOne({email: email}); 
+        
+        if(!email || !password) {
+            return res.status(400).json({message: 'Email and password are required.'});
+        }
+        
         if (!user) {
             return res.status(400).json({message: 'Invalid Credentials'});
         }   
