@@ -1,6 +1,3 @@
-// const express = require('express');
-// using nodemon for auto-restarting the server on code changes
-
 import express from 'express'; // for using, had to add "type": "module" in package.json
 import dotenv from 'dotenv';
 import path from 'path';
@@ -15,7 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const __dirname = path.resolve();
 
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.json()); // Middleware to parse JSON bodies req.body
 
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
