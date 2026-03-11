@@ -17,3 +17,5 @@ pids
 *.seed
 *.pid.lock
 lib-cov
+
+setup.md

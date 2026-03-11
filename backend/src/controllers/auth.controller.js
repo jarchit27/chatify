@@ -47,6 +47,9 @@ export const signup = async (req, res) => {
                 email: newUser.email,
                 profilePic: newUser.profilePic,
             });
+
+            // generate token after saving user, otherwise if token is generated before saving, it will not have the user id and will cause issues when trying to authenticate the user later on
+            // Todo: Send welcom email to user after successful signup
         }
         else {
             return res.status(500).json({message: 'Failed to create user.'});
