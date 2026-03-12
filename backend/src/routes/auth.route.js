@@ -1,14 +1,15 @@
 import express from 'express';
 import { signup , login , logout ,updateProfile } from '../controllers/auth.controller.js';
 import { protectRoute } from '../middleware/auth.middleware.js';
+import { arcjetProtection } from '../middleware/arcjet.middleware.js';
 
 const router = express.Router(); // creates a new isolated Router object
 
+router.use(arcjetProtection); // Apply Arcjet protection to all routes in this router
+
 router.post('/signup', signup);
-
-router.get('/login', login);
-
-router.get('/logout', logout);
+router.post('/login' ,login);
+router.post('/logout', logout);
 
 router.put('/update-profile', protectRoute, updateProfile);
 
