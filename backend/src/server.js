@@ -1,6 +1,7 @@
 import express from 'express'; // for using, had to add "type": "module" in package.json
 import path from 'path';
 import { connectDB } from './lib/db.js';
+import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth.route.js';  
 import messageRoutes from './routes/message.route.js';
@@ -12,6 +13,7 @@ const port = ENV.PORT || 3000;
 const __dirname = path.resolve();
 
 app.use(express.json()); // Middleware to parse JSON bodies req.body
+app.use(cookieParser()); // Middleware to parse cookies req.cookies
 
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
