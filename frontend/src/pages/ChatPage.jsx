@@ -1,7 +1,7 @@
 function ChatPage() {
     return (
         <div>
-            Chat Page
+            <h1 className="text-white text-xl">Chat Page</h1>
         </div>
     )
 }
