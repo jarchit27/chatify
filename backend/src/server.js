@@ -12,7 +12,7 @@ const app = express();
 const port = ENV.PORT || 3000;
 const __dirname = path.resolve();
 
-app.use(express.json()); // Middleware to parse JSON bodies req.body
+app.use(express.json({ limit: "5mb" })); // Middleware to parse JSON bodies req.body
 app.use(cors({origin:ENV.CLIENT_URL,credentials:true}))
 app.use(cookieParser()); // Middleware to parse cookies req.cookies
 
