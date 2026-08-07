@@ -20,11 +20,15 @@ app.use('/api/messages', messageRoutes);
 
 // Make ready for production
 if (ENV.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  const staticPath = path.join(__dirname, "../frontend/dist");
+  console.log("Production mode: serving static files from", staticPath);
+  app.use(express.static(staticPath));
 
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+    res.sendFile(path.join(staticPath, "index.html"));
   });
+} else {
+  console.log("Development mode: NODE_ENV =", ENV.NODE_ENV);
 }
 
 server.listen(port, () => {
