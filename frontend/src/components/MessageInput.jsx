@@ -46,7 +46,7 @@ function MessageInput() {
   };
 
   return (
-    <div className="p-3 sm:p-4 border-t border-slate-700/50">
+    <div className="p-4 border-t border-slate-700/50">
       {imagePreview && (
         <div className="max-w-3xl mx-auto mb-3 flex items-center">
           <div className="relative">
@@ -65,7 +65,7 @@ function MessageInput() {
           </div>
         </div>
       )}
-      <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto flex space-x-2 sm:space-x-4">
+      <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto flex space-x-4">
         <input
           type="text"
           value={text}
