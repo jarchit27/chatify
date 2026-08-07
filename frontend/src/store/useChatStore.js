@@ -59,7 +59,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser } = get();
     const { authUser } = useAuthStore.getState();
     const tempId = `temp-${Date.now()}`;
 
@@ -73,13 +73,21 @@ export const useChatStore = create((set, get) => ({
       isOptimistic: true,
     };
 
-    set({ messages: [...messages, optimisticMessage] });
+    // snapshot before optimistic insert (for rollback)
+    const previousMessages = get().messages;
+    set({ messages: [...previousMessages, optimisticMessage] });
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: messages.concat(res.data) });
+      // replace the optimistic message with the real server response
+      set({
+        messages: get().messages.map((msg) =>
+          msg._id === tempId ? res.data : msg
+        ),
+      });
     } catch (error) {
-      set({ messages: messages });
+      // rollback: remove the optimistic message
+      set({ messages: get().messages.filter((msg) => msg._id !== tempId) });
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   },

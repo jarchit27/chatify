@@ -5,7 +5,7 @@ import User from "../models/User.js";
 
 export const getAllContacts = async (req, res) => {
     try {
-        const loggedInUserId = req.user.id;
+        const loggedInUserId = req.user._id;
         const filterdUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
         res.status(200).json(filterdUsers);
     }
@@ -17,7 +17,7 @@ export const getAllContacts = async (req, res) => {
 
 export const getMessagesByUserId = async (req, res) => {
     try {
-        const myId = req.user.id;
+        const myId = req.user._id;
         const { id: userToChatId } = req.params;
         const messages = await Message.find({
             $or: [
@@ -37,12 +37,12 @@ export const sendMessage = async (req, res) => {
     try {
         const { text, image } = req.body;
         const { id: receiverId } = req.params;
-        const senderId = req.user.id;
+        const senderId = req.user._id;
 
         if (!text && !image) {
             return res.status(400).json({ message: "Text or image is required." });
         }
-        if (senderId.equals(receiverId)) {
+        if (senderId.toString() === receiverId) {
             return res.status(400).json({ message: "Cannot send messages to yourself." });
         }
         const receiverExists = await User.exists({ _id: receiverId });
@@ -81,7 +81,7 @@ export const sendMessage = async (req, res) => {
 
 export const getChatPartners = async (req, res) => {
     try {
-        const loggedInUserId = req.user.id;
+        const loggedInUserId = req.user._id;
 
         const messages = await Message.find({
             $or: [
