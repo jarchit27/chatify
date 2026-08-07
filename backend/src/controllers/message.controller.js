@@ -17,7 +17,7 @@ export const getAllContacts = async (req, res) => {
 export const getMessagesByUserId = async (req, res) => {
     try {
         const myId = req.user.id;
-        const {id:userToChatId} = req.params;
+        const { id: userToChatId } = req.params;
         const messages = await Message.find({
             $or: [
                 { senderId: myId, receiverId: userToChatId },
@@ -34,12 +34,23 @@ export const getMessagesByUserId = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
     try {
-        const {text, image} = req.body;
-        const {id: receiverId} = req.params;
+        const { text, image } = req.body;
+        const { id: receiverId } = req.params;
         const senderId = req.user.id;
 
+        if (!text && !image) {
+            return res.status(400).json({ message: "Text or image is required." });
+        }
+        if (senderId.equals(receiverId)) {
+            return res.status(400).json({ message: "Cannot send messages to yourself." });
+        }
+        const receiverExists = await User.exists({ _id: receiverId });
+        if (!receiverExists) {
+            return res.status(404).json({ message: "Receiver not found." });
+        }
+
         let imageUrl;
-        if (image) {    
+        if (image) {
             const uploadResponse = await cloudinary.uploader.upload(image);
             imageUrl = uploadResponse.secure_url;
         }
@@ -55,7 +66,7 @@ export const sendMessage = async (req, res) => {
         res.status(201).json(newMessage);
     }
     catch (error) {
-        console.log("Error in sending message:", error.message); 
+        console.log("Error in sending message:", error.message);
         res.status(500).json({ error: "Failed to send message" });
     }
 };
@@ -71,7 +82,7 @@ export const getChatPartners = async (req, res) => {
             ]
         });
 
-        const chatPartnerIds = [ ...new Set(messages.map((msg)=> 
+        const chatPartnerIds = [...new Set(messages.map((msg) =>
             msg.senderId.toString() === loggedInUserId.toString() ? msg.receiverId.toString() : msg.senderId.toString()
         ))];
 
