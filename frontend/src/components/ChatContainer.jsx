@@ -33,11 +33,11 @@ function ChatContainer() {
   }, [messages]);
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <ChatHeader />
-      <div className="flex-1 px-6 overflow-y-auto py-8">
+      <div className="flex-1 px-3 sm:px-6 overflow-y-auto py-4 sm:py-8">
         {messages.length > 0 && !isMessagesLoading ? (
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
             {messages.map((msg) => (
               <div
                 key={msg._id}
@@ -73,7 +73,7 @@ function ChatContainer() {
         )}
       </div>
       <MessageInput />
-    </>
+    </div>
   );
 }
 
