@@ -1,18 +1,26 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
-export const useAuthStore = create((set) => ({
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/";
+
+export const useAuthStore = create((set, get) => ({
     authUser: null,
     isCheckingAuth: true,
     isSigningUp: false,
     isLoggingIn: false,
+    socket: null,
+    onlineUsers: [],
+
     checkAuth: async () => {
         try {
             const res = await axiosInstance.get('/auth/check');
             set({ authUser: res.data });
+            get().connectSocket();
         } catch (err) {
-            console.error(err)
+            console.error(err);
+            set({ authUser: null });
         } finally {
             set({ isCheckingAuth: false });
         }
@@ -24,6 +32,7 @@ export const useAuthStore = create((set) => ({
             const res = await axiosInstance.post("/auth/signup", data);
             set({ authUser: res.data });
             toast.success("Account created successfully!");
+            get().connectSocket();
         }
         catch (error) {
             toast.error(error.response?.data?.message || "Something went wrong");
@@ -38,6 +47,7 @@ export const useAuthStore = create((set) => ({
             const res = await axiosInstance.post("/auth/login", data);
             set({ authUser: res.data });
             toast.success("Logged in successfully");
+            get().connectSocket();
         } catch (error) {
             toast.error(error.response?.data?.message || "Something went wrong");
         } finally {
@@ -50,6 +60,7 @@ export const useAuthStore = create((set) => ({
             await axiosInstance.post("/auth/logout");
             set({ authUser: null });
             toast.success("Logged out successfully");
+            get().disconnectSocket();
         } catch (error) {
             toast.error("Error logging out");
             console.log("Logout error:", error);
@@ -67,4 +78,23 @@ export const useAuthStore = create((set) => ({
         }
     },
 
+    connectSocket: () => {
+        const { authUser } = get();
+        const existing = get().socket;
+        if (!authUser || existing?.connected || existing?.active) return;
+
+        const socket = io(BASE_URL, {
+            withCredentials: true,
+        });
+        socket.connect();
+        set({ socket });
+
+        socket.on("getOnlineUsers", (userIds) => {
+            set({ onlineUsers: userIds });
+        });
+    },
+
+    disconnectSocket: () => {
+        if (get().socket?.connected) get().socket.disconnect();
+    },
 }));

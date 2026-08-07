@@ -1,4 +1,4 @@
-import express from 'express'; // for using, had to add "type": "module" in package.json
+import express from 'express';
 import path from 'path';
 import { connectDB } from './lib/db.js';
 import cookieParser from 'cookie-parser';
@@ -6,8 +6,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.route.js';  
 import messageRoutes from './routes/message.route.js';
 import { ENV } from './lib/env.js';
-
-const app = express();
+import { app, server } from './lib/socket.js';
 
 const port = ENV.PORT || 3000;
 const __dirname = path.resolve();
@@ -28,7 +27,7 @@ if (ENV.NODE_ENV === "production") {
   });
 }
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
   connectDB();
 });
